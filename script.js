@@ -1,3 +1,4 @@
+const drop = document.getElementById("drop");
 const input = document.getElementById("fileInput");
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
@@ -6,13 +7,17 @@ const inputInfo = document.getElementById("inputInfo");
 const outputInfo = document.getElementById("outputInfo");
 
 input.addEventListener("change", e=>{
-    const file = e.target.files[0];
-    loadFile(file);
+    loadFile(e.target.files[0]);
 });
 
-function formatSize(bytes){
-    return (bytes/1024/1024).toFixed(2)+" MB";
-}
+drop.addEventListener("dragover", e=>{
+    e.preventDefault();
+});
+
+drop.addEventListener("drop", e=>{
+    e.preventDefault();
+    loadFile(e.dataTransfer.files[0]);
+});
 
 function ratio(w,h){
     return (w/h).toFixed(3)+" : 1";
@@ -23,11 +28,7 @@ function loadFile(file){
     const img = new Image();
 
     img.onload = ()=>{
-
-        showInputInfo(file,img);
-
         processImage(img);
-
     };
 
     img.src = URL.createObjectURL(file);
@@ -65,11 +66,11 @@ function processImage(img){
 
         for(let y=0;y<height;y+=10){
 
-            const i=(y*width+x)*4;
+            const i = (y*width + x)*4;
 
-            const r=data[i];
-            const g=data[i+1];
-            const b=data[i+2];
+            const r = data[i];
+            const g = data[i+1];
+            const b = data[i+2];
 
             if(r>25 || g>25 || b>25){
                 return false;
@@ -79,18 +80,18 @@ function processImage(img){
         return true;
     }
 
-    let left=0;
-    let right=width-1;
+    let left = 0;
+    let right = width-1;
 
-    while(left<width && isBlackColumn(left)) left++;
-    while(right>0 && isBlackColumn(right)) right--;
+    while(left < width && isBlackColumn(left)) left++;
+    while(right > 0 && isBlackColumn(right)) right--;
 
     const cropWidth = right-left;
 
     const cropped = ctx.getImageData(left,0,cropWidth,height);
 
-    canvas.width=cropWidth;
-    canvas.height=height;
+    canvas.width = cropWidth;
+    canvas.height = height;
 
     ctx.putImageData(cropped,0,0);
 
@@ -116,10 +117,9 @@ function showOutputInfo(){
 
 document.getElementById("download").onclick=()=>{
 
-    const link=document.createElement("a");
-
-    link.download="cropped.png";
-    link.href=canvas.toDataURL("image/png");
-
+    const link = document.createElement("a");
+    link.download = "cropped.png";
+    link.href = canvas.toDataURL("image/png");
     link.click();
+
 }
