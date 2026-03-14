@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>Ultrawide Screenshot Cropper</title>
+
+<style>
+body{
+    font-family:sans-serif;
+    text-align:center;
+    padding:40px;
+}
+
+canvas{
+    max-width:100%;
+    border:1px solid #ccc;
+}
+
+.drop{
+    border:2px dashed #888;
+    padding:40px;
+    margin-bottom:20px;
+}
+</style>
+
+</head>
+<body>
+
+<h1>Ultrawide Screenshot Cropper</h1>
+
+<div class="drop" id="drop">
+画像をドラッグ＆ドロップ<br>
+または
+<br><br>
+<input type="file" id="fileInput">
+</div>
+
+<canvas id="canvas"></canvas>
+
+<br><br>
+
+<button id="download">Download Cropped Image</button>
+
+<script src="script.js"></script>
+
+</body>
+</html>
