@@ -2,18 +2,29 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>Ultrawide Screenshot Cropper</title>
+<title>おびとりくん</title>
 
 <style>
 body{
     font-family:sans-serif;
-    text-align:center;
-    padding:40px;
+    padding:30px;
 }
 
 canvas{
-    max-width:100%;
     border:1px solid #ccc;
+    margin:10px;
+}
+
+/* 表示サイズを縮小 */
+.preview{
+    max-width:600px;
+    width:100%;
+    height:auto;
+}
+
+.container{
+    display:flex;
+    gap:40px;
 }
 
 .drop{
@@ -34,34 +45,32 @@ canvas{
 </head>
 <body>
 
-<h1>Ultrawide Screenshot Cropper</h1>
+<h1>おびとりくん</h1>
 
 <div class="drop" id="drop">
 画像をドラッグ＆ドロップ<br>
 または
-<br><br>
+<br>
 <input type="file" id="fileInput">
 </div>
 
-<br>
+<div class="container">
 
-<div class="info">
-<h3>入力画像</h3>
-<div id="inputInfo"></div>
+<div>
+<h3>処理前</h3>
+<div class="info" id="inputInfo"></div><br>
+<canvas id="inputCanvas" class="preview"></canvas>
 </div>
 
-<div class="info">
-<h3>処理後画像</h3>
-<div id="outputInfo"></div>
+<div>
+<h3>処理後</h3>
+<div class="info" id="outputInfo"></div><br>
+<canvas id="outputCanvas" class="preview"></canvas>
+<br>
+<button id="download">Download</button>
 </div>
 
-<br>
-
-<canvas id="canvas"></canvas>
-
-<br><br>
-
-<button id="download">Download Cropped Image</button>
+</div>
 
 <script src="script.js"></script>
 

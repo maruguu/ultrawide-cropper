@@ -1,7 +1,10 @@
 const drop = document.getElementById("drop");
 const input = document.getElementById("fileInput");
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+const inputCanvas = document.getElementById("inputCanvas");
+const inputCtx = inputCanvas.getContext("2d");
+
+const outputCanvas = document.getElementById("outputCanvas");
+const outputCtx = outputCanvas.getContext("2d");
 
 const inputInfo = document.getElementById("inputInfo");
 const outputInfo = document.getElementById("outputInfo");
@@ -32,6 +35,7 @@ function loadFile(file){
     const img = new Image();
 
     img.onload = ()=>{
+        showInputInfo(file,img);
         processImage(img);
     };
 
@@ -55,26 +59,26 @@ function showInputInfo(file,img){
 
 function processImage(img){
 
-    canvas.width = img.width;
-    canvas.height = img.height;
+    const width=img.width;
+    const height=img.height;
 
-    ctx.drawImage(img,0,0);
+    inputCanvas.width=width;
+    inputCanvas.height=height;
 
-    const imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
-    const data = imgData.data;
+    inputCtx.drawImage(img,0,0);
 
-    const width = canvas.width;
-    const height = canvas.height;
+    const imgData=inputCtx.getImageData(0,0,width,height);
+    const data=imgData.data;
 
     function isBlackColumn(x){
 
         for(let y=0;y<height;y+=10){
 
-            const i = (y*width + x)*4;
+            const i=(y*width+x)*4;
 
-            const r = data[i];
-            const g = data[i+1];
-            const b = data[i+2];
+            const r=data[i];
+            const g=data[i+1];
+            const b=data[i+2];
 
             if(r>25 || g>25 || b>25){
                 return false;
@@ -84,30 +88,46 @@ function processImage(img){
         return true;
     }
 
-    let left = 0;
-    let right = width-1;
+    let left=0;
+    let right=width-1;
 
-    while(left < width && isBlackColumn(left)) left++;
-    while(right > 0 && isBlackColumn(right)) right--;
+    while(left<width && isBlackColumn(left)) left++;
+    while(right>0 && isBlackColumn(right)) right--;
 
-    const cropWidth = right-left;
+    /* クロップ処理 */
 
-    const cropped = ctx.getImageData(left,0,cropWidth,height);
+    const cropWidth=right-left+1;
 
-    canvas.width = cropWidth;
-    canvas.height = height;
+    const cropped=inputCtx.getImageData(left,0,cropWidth,height);
 
-    ctx.putImageData(cropped,0,0);
+    outputCanvas.width=cropWidth;
+    outputCanvas.height=height;
+
+    outputCtx.putImageData(cropped,0,0);
 
     showOutputInfo();
+    
+    /* クロップライン描画 */
+    inputCtx.strokeStyle="red";
+    inputCtx.lineWidth=4;
+
+    inputCtx.beginPath();
+    inputCtx.moveTo(left,0);
+    inputCtx.lineTo(left,height);
+    inputCtx.stroke();
+
+    inputCtx.beginPath();
+    inputCtx.moveTo(right,0);
+    inputCtx.lineTo(right,height);
+    inputCtx.stroke();
 }
 
 function showOutputInfo(){
 
-    const w=canvas.width;
-    const h=canvas.height;
+    const w=outputCanvas.width;
+    const h=outputCanvas.height;
 
-    const dataUrl = canvas.toDataURL("image/png");
+    const dataUrl = outputCanvas.toDataURL("image/png");
 
     const base64 = dataUrl.split(",")[1];
     const size = Math.round(base64.length*0.75);
@@ -123,7 +143,7 @@ document.getElementById("download").onclick=()=>{
 
     const link = document.createElement("a");
     link.download = "cropped.png";
-    link.href = canvas.toDataURL("image/png");
+    link.href = outputCanvas.toDataURL("image/png");
     link.click();
 
 }
