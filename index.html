@@ -2,17 +2,20 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<title>おびとりくん</title>
+<title>Obi-Tori</title>
 
 <style>
 body{
-    font-family:sans-serif;
-    padding:30px;
+    margin:0;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);
+    color:#e0e6ff;
 }
 
 canvas{
-    border:1px solid #ccc;
-    margin:10px;
+    width:100%;
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,0.1);
 }
 
 /* 表示サイズを縮小 */
@@ -23,50 +26,106 @@ canvas{
 }
 
 .container{
-    display:flex;
-    gap:40px;
+    max-width:1100px;
+    margin:auto;
+    padding:40px;
 }
 
+h1{
+    text-align:center;
+    font-weight:600;
+    letter-spacing:1px;
+}
+
+.card{
+    background:rgba(20,20,40,0.6);
+    backdrop-filter: blur(10px);
+    border-radius:12px;
+    padding:20px;
+    margin-top:20px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.3);
+}
+
+
 .drop{
-    border:2px dashed #888;
+    border:2px dashed rgba(255,255,255,0.3);
+    border-radius:12px;
     padding:40px;
-    margin-bottom:20px;
+    text-align:center;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.drop:hover{
+    border-color:#00e5ff;
+    background:rgba(255,255,255,0.05);
+}
+
+.canvasRow{
+    display:flex;
+    gap:20px;
+    margin-top:20px;
+    flex-wrap:wrap;
+}
+
+.canvasCard{
+    flex:1;
+    min-width:300px;
+}
+
+button{
+    background:#66c0f4;
+    border:none;
+    color:white;
+    padding:12px 20px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:15px;
+    margin-top:20px;
+}
+
+button:hover{
+    background:#89d0ff;
 }
 
 .info{
-    text-align:left;
-    display:inline-block;
-    margin:20px;
-    padding:10px;
-    border:1px solid #ccc;
+    font-size:14px;
+    opacity:0.9;
+    line-height:1.6;
 }
 </style>
 
 </head>
 <body>
 
-<h1>おびとりくん</h1>
+<div class="container">
+<h1>Obi-Tori</h1>
 
+<div class="card">
 <div class="drop" id="drop">
 画像をドラッグ＆ドロップ<br>
 または
 <br>
 <input type="file" id="fileInput">
 </div>
-
-<div class="container">
-
-<div>
-<h3>処理前</h3>
-<div class="info" id="inputInfo"></div><br>
-<canvas id="inputCanvas" class="preview"></canvas>
 </div>
 
-<div>
-<h3>処理後</h3>
-<div class="info" id="outputInfo"></div><br>
-<canvas id="outputCanvas" class="preview"></canvas>
-<br>
+<div class="canvasRow">
+<div class="card canvasCard">
+<h3>Input</h3>
+<canvas id="inputCanvas"></canvas>
+<div id="inputInfo" class="info"></div>
+</div>
+
+<div class="card canvasCard">
+<h3>Output</h3>
+<canvas id="outputCanvas"></canvas>
+<div id="outputInfo" class="info"></div>
+</div>
+
+</div>
+
+<div style="text-align:center">
 <button id="download">Download</button>
 </div>
 
