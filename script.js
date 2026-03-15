@@ -9,6 +9,8 @@ const outputCtx = outputCanvas.getContext("2d");
 const inputInfo = document.getElementById("inputInfo");
 const outputInfo = document.getElementById("outputInfo");
 
+let originalImage = null;
+
 input.addEventListener("change", e=>{
     loadFile(e.target.files[0]);
 });
@@ -35,6 +37,7 @@ function loadFile(file){
     const img = new Image();
 
     img.onload = ()=>{
+        originalImage = img; 
         showInputInfo(file,img);
         processImage(img);
     };
@@ -58,7 +61,19 @@ function showInputInfo(file,img){
 }
 
 function processImage(img){
+    let rect;
+    const mode = document.querySelector('input[name="cropMode"]:checked').value;
+    if(mode === "auto"){
+        rect = cropAuto(img);
+    }else{
+        rect = cropPreset(img);
+    }
 
+    showOutputInfo();
+    drawCropLine(rect);
+}
+
+function cropAuto(img){
     const width=img.width;
     const height=img.height;
 
@@ -105,21 +120,56 @@ function processImage(img){
 
     outputCtx.putImageData(cropped,0,0);
 
-    showOutputInfo();
-    
-    /* クロップライン描画 */
-    inputCtx.strokeStyle="red";
-    inputCtx.lineWidth=4;
+    return {"left": left, "top": 0, "width":width, "height":height};
+}
 
-    inputCtx.beginPath();
-    inputCtx.moveTo(left,0);
-    inputCtx.lineTo(left,height);
-    inputCtx.stroke();
+function cropPreset(img){
+    const width=img.width;
+    const height=img.height;
 
-    inputCtx.beginPath();
-    inputCtx.moveTo(right,0);
-    inputCtx.lineTo(right,height);
-    inputCtx.stroke();
+    inputCanvas.width=width;
+    inputCanvas.height=height;
+
+    inputCtx.drawImage(img,0,0);
+
+    const preset = document.getElementById("preset").value;
+
+    const parts = preset.split("x");
+
+    const targetW = parseInt(parts[0]);
+    const targetH = parseInt(parts[1]);
+
+    const sourceW = img.width;
+    const sourceH = img.height;
+
+    const targetAspect = targetW / targetH;
+    const sourceAspect = sourceW / sourceH;
+
+    let cropW, cropH;
+
+    if(sourceAspect > targetAspect){
+
+        cropH = sourceH;
+        cropW = Math.round(sourceH * targetAspect);
+
+    }else{
+
+        cropW = sourceW;
+        cropH = Math.round(sourceW / targetAspect);
+
+    }
+
+    const left = Math.round((sourceW - cropW) / 2);
+    const top = Math.round((sourceH - cropH) / 2);
+
+    const cropped = inputCtx.getImageData(left, top, cropW, cropH);
+
+    outputCanvas.width = cropW;
+    outputCanvas.height = cropH;
+
+    outputCtx.putImageData(cropped, 0, 0);
+
+    return {"left": left, "top": top, "width": cropW, "height": cropH};
 }
 
 function showOutputInfo(){
@@ -138,6 +188,19 @@ function showOutputInfo(){
     推定ファイルサイズ: ${formatSize(size)}
     `;
 }
+
+/* クロップライン描画 */
+function drawCropLine(rect){
+    inputCtx.strokeStyle="red";
+    inputCtx.lineWidth=4;
+    
+    inputCtx.strokeRect(rect.left, rect.top, rect.width, rect.height);
+}
+
+document.getElementById("recrop").onclick = ()=>{
+    if(!originalImage) return;
+    processImage(originalImage);
+};
 
 document.getElementById("download").onclick=()=>{
 
