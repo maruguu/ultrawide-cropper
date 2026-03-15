@@ -11,6 +11,10 @@ const outputInfo = document.getElementById("outputInfo");
 
 let originalImage = null;
 
+window.addEventListener("DOMContentLoaded", ()=>{
+    loadSettings();
+});
+
 input.addEventListener("change", e=>{
     loadFile(e.target.files[0]);
 });
@@ -23,6 +27,14 @@ drop.addEventListener("drop", e=>{
     e.preventDefault();
     loadFile(e.dataTransfer.files[0]);
 });
+
+document.querySelectorAll(
+'input[name="cropMode"]'
+).forEach(r=>{
+    r.addEventListener("change", saveSettings);
+});
+
+document.getElementById("preset").addEventListener("change", saveSettings);
 
 function formatSize(bytes){
     return (bytes/1024/1024).toFixed(2)+" MB";
@@ -195,6 +207,33 @@ function drawCropLine(rect){
     inputCtx.lineWidth=4;
     
     inputCtx.strokeRect(rect.left, rect.top, rect.width, rect.height);
+}
+
+function saveSettings(){
+    const mode =
+    document.querySelector(
+        'input[name="cropMode"]:checked'
+    ).value;
+
+    const preset =
+    document.getElementById("preset").value;
+
+    localStorage.setItem("cropMode", mode);
+    localStorage.setItem("presetResolution", preset);
+}
+
+function loadSettings(){
+    const mode = localStorage.getItem("cropMode");
+    const preset = localStorage.getItem("presetResolution");
+    if(mode){
+        document.querySelector(
+            `input[name="cropMode"][value="${mode}"]`
+        ).checked = true;
+    }
+
+    if(preset){
+        document.getElementById("preset").value = preset;
+    }
 }
 
 document.getElementById("recrop").onclick = ()=>{
