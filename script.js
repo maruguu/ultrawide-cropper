@@ -40,10 +40,6 @@ function formatSize(bytes){
     return (bytes/1024/1024).toFixed(2)+" MB";
 }
 
-function ratio(w,h){
-    return (w/h).toFixed(3)+" : 1";
-}
-
 function loadFile(file){
 
     const img = new Image();
@@ -67,7 +63,7 @@ function showInputInfo(file,img){
     ファイルサイズ: ${formatSize(file.size)}<br>
     MIME: ${file.type}<br>
     解像度: ${w} × ${h}<br>
-    アスペクト比: ${ratio(w,h)}<br>
+    アスペクト比: ${getCommonAspectRatio(w,h)}<br>
     更新日時: ${new Date(file.lastModified).toLocaleString()}
     `;
 }
@@ -196,7 +192,7 @@ function showOutputInfo(){
 
     outputInfo.innerHTML = `
     解像度: ${w} × ${h}<br>
-    アスペクト比: ${ratio(w,h)}<br>
+    アスペクト比: ${getCommonAspectRatio(w,h)}<br>
     推定ファイルサイズ: ${formatSize(size)}
     `;
 }
@@ -234,6 +230,49 @@ function loadSettings(){
     if(preset){
         document.getElementById("preset").value = preset;
     }
+}
+
+function gcd(a,b){
+    return b ? gcd(b, a % b) : a;
+}
+
+function getAspectRatio(width,height){
+    const g = gcd(width,height);
+    const w = width / g;
+    const h = height / g;
+    return w + ":" + h;
+}
+
+function getCommonAspectRatio(width,height){
+    if(width == 0 || height == 0){
+        return "不明";
+    } 
+    const ratio = width / height;
+    const presets = [
+        [16,9],
+        [21,9],
+        [32,9],
+        [16,10],
+        [4,3],
+        [3,2],
+        [1,1]
+    ];
+    let best = null;
+    let bestDiff = 999;
+    for(const p of presets){
+        const r = p[0]/p[1];
+        const diff = Math.abs(ratio - r);
+        if(diff < bestDiff){
+            bestDiff = diff;
+            best = p;
+        }
+    }
+
+    // 許容誤差 (3440x1440を21:9と判定するには0.0556以上が必要)
+    if(bestDiff < 0.07){
+        return best[0] + ":" + best[1];
+    }
+    return getAspectRatio(width,height);
 }
 
 document.getElementById("recrop").onclick = ()=>{
